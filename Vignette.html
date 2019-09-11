@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="author" content="Margarita Moreno-Betancur" />
+
+
+<title>medRCT: Estimating mediation effects that emulate a target randomized controlled trial (RCT)</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+<link href="data:text/css;charset=utf-8,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23header%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%20code%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" rel="stylesheet" type="text/css" />
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore"><code>medRCT</code>: Estimating mediation effects that emulate a target randomized controlled trial (RCT)</h1>
+<h4 class="author">Margarita Moreno-Betancur</h4>
+
+
+
+<p>This vignette provides a worked example on simulated data showing how to use the R function <code>medRCT_4med</code> provided in <a href="https://github.com/moreno-betancur/medRCT">this</a> repository for the paper (click <a href="https://raw.githack.com/moreno-betancur/medRCT/master/medRCT_4med.R">here</a> to download it):</p>
+<blockquote>
+<p>Moreno-Betancur M, Moran P, Becker D, Patton GC, Carlin JB. “Defining mediation effects for multiple mediators using the concept of the target randomized trial”. <a href="https://arxiv.org/abs/1907.06734" class="uri">https://arxiv.org/abs/1907.06734</a></p>
+</blockquote>
+<div id="loading-and-looking-at-the-example-dataset" class="section level2">
+<h2>Loading and looking at the example dataset</h2>
+<p>To illustrate, we use a dataset <code>dat4med.csv</code> (available for download <a href="https://raw.githack.com/moreno-betancur/medRCT/master/dat4med.csv">here</a>) that was simulated roughly based on one imputed version of the real data from the Victorian Adolescent Health Cohort Study (VAHCS) that was analysed in the paper.</p>
+<p>The dataset consists of the following variables, none of which has missing data:</p>
+<ul>
+<li>ID: identifier variable</li>
+<li>C1,…,C6: set of binary confounders</li>
+<li>A: binary exposure</li>
+<li>M1,…,M4: set of binary mediators</li>
+<li>Y: binary outcome</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Load and look</span>
+dat &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;dat4med.csv&quot;</span>)
+<span class="kw">head</span>(dat)</code></pre></div>
+<pre><code>##   ID C1 C2 C3 C4 C5 C6 A M1 M2 M3 M4 Y
+## 1  1  1  1  1  0  1  1 1  0  0  1  0 1
+## 2  2  0  0  0  0  0  0 0  0  0  1  0 0
+## 3  3  0  0  0  0  1  0 0  0  0  0  0 0
+## 4  4  0  0  0  1  0  0 0  0  0  1  0 0
+## 5  5  1  1  0  1  0  1 1  0  1  1  0 0
+## 6  6  0  0  1  0  0  0 0  0  0  1  1 0</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Summarise</span>
+<span class="kw">apply</span>(dat[, <span class="dv">2</span><span class="op">:</span><span class="kw">ncol</span>(dat)], <span class="dv">2</span>, mean, <span class="dt">na.rm =</span> F)</code></pre></div>
+<pre><code>##     C1     C2     C3     C4     C5     C6      A     M1     M2     M3 
+## 0.3560 0.1370 0.1800 0.2470 0.5115 0.3425 0.0985 0.2235 0.1270 0.6615 
+##     M4      Y 
+## 0.1095 0.2495</code></pre>
+</div>
+<div id="loading-function-and-required-libraries" class="section level2">
+<h2>Loading function and required libraries</h2>
+<p>The function <code>medRCT_4med</code> is provided in <a href="https://github.com/moreno-betancur/medRCT">this</a> repository to conduct analyses as in the paper (click <a href="https://raw.githack.com/moreno-betancur/medRCT/master/medRCT_4med.R">here</a> to download it).</p>
+<p>While there is a plan to make the function more general in the future, this version of the function assumes a setting with 4 binary interdependent mediators, with exposure and outcome being binary as well. During the estimation process, the function includes all 2-way interactions amongst exposure and mediators in the parametric models that are the building pieces for the simulation-based g-computation estimation procedure. The package <code>zoo</code> is required by the function and it is set up so that it can be called using the <code>boot</code> function from the <code>boot</code> package, which also needs to be loaded to run the analysis using the bootstrap.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(boot)
+<span class="kw">library</span>(zoo)
+<span class="kw">source</span>(<span class="st">&quot;medRCT_4med.R&quot;</span>)</code></pre></div>
+<p>The function <code>medRCT_4med</code> takes the following arguments:</p>
+<ul>
+<li><code>dat</code>: Dataset (data.frame)</li>
+<li><code>ind</code>: Indices of records in <code>dat</code> to conduct the analysis on (numerical vector), which is required by <code>boot</code>; default is to use all of <code>dat</code>, as is</li>
+<li><code>exposure</code>: Exposure name (character vector, length 1)</li>
+<li><code>outcome</code>: Outcome name (character vector, length 1)</li>
+<li><code>mediators</code>: Names of mediators (character vector, length 4), in the desired order for reporting; this order also defines the order of the sequence for effects under sequential policies</li>
+<li><code>confounders</code>: Names of the confounders in the dataset (Character vector, length&gt;0)</li>
+<li><code>sim</code>: Number of desired Monte Carlo simulation runs; default is to use 200 runs</li>
+<li><code>RCT</code>: Type of RCT to emulate (charactervector, length 1); must be either “one-policy” to estimate mediation effects emulating an RCT under the one-policy premise, “sequential” to estimate mediation effects emulating an RCT under sequential policies, or “both” to obtain both sets of estimates</li>
+</ul>
+</div>
+<div id="using-the-function" class="section level2">
+<h2>Using the function</h2>
+<div id="estimate-mediation-effects-under-one-policy-premise" class="section level3">
+<h3>Estimate mediation effects under “one-policy premise”</h3>
+<p>The following code shows how to obtain estimates of mediation effects that emulate an RCT under a “one-policy premise”</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#set seed for reproducibility and also for estimates of TCE, IDE and IIE_1/IIE_seq1 obtained with the two RCT options to coincide</span>
+<span class="kw">set.seed</span>(<span class="dv">4750</span>) 
+
+<span class="co"># Estimate the effects with the bootrstrap</span>
+bstrap&lt;-<span class="kw">boot</span>(<span class="dt">data=</span>dat, <span class="dt">statistic=</span>medRCT_4med, 
+             <span class="dt">exposure=</span><span class="st">&quot;A&quot;</span>, <span class="dt">outcome=</span><span class="st">&quot;Y&quot;</span>, <span class="dt">mediators=</span><span class="kw">c</span>(<span class="st">&quot;M1&quot;</span>,<span class="st">&quot;M2&quot;</span>,<span class="st">&quot;M3&quot;</span>,<span class="st">&quot;M4&quot;</span>),
+             <span class="dt">confounders=</span><span class="kw">c</span>(<span class="st">&quot;C1&quot;</span>,<span class="st">&quot;C2&quot;</span>,<span class="st">&quot;C3&quot;</span>,<span class="st">&quot;C4&quot;</span>,<span class="st">&quot;C5&quot;</span>,<span class="st">&quot;C6&quot;</span>), <span class="dt">mcsim=</span><span class="dv">200</span>, <span class="dt">RCT=</span><span class="st">&quot;one-policy&quot;</span>,
+             <span class="dt">stype=</span><span class="st">&quot;i&quot;</span>, <span class="dt">R=</span><span class="dv">2</span>)
+
+<span class="co"># Set-up results table</span>
+RES&lt;-<span class="kw">data.frame</span>(<span class="dt">Estimate=</span>bstrap<span class="op">$</span>t0,<span class="dt">SE=</span><span class="kw">apply</span>(bstrap<span class="op">$</span>t,<span class="dv">2</span>,sd,<span class="dt">na.rm=</span>T))
+RES<span class="op">$</span>CIlow&lt;-RES<span class="op">$</span>Estimate<span class="op">-</span><span class="fl">1.96</span><span class="op">*</span>RES<span class="op">$</span>SE
+RES<span class="op">$</span>CIupp&lt;-RES<span class="op">$</span>Estimate<span class="op">+</span><span class="fl">1.96</span><span class="op">*</span>RES<span class="op">$</span>SE
+RES<span class="op">$</span>pvalue&lt;-<span class="dv">2</span><span class="op">*</span><span class="kw">pnorm</span>(<span class="kw">abs</span>(RES<span class="op">$</span>Estimate<span class="op">/</span>RES<span class="op">$</span>SE),<span class="dt">lower.tail =</span> F)
+RES<span class="op">$</span>PropTCE&lt;-<span class="kw">round</span>(<span class="dv">100</span><span class="op">*</span>(RES<span class="op">$</span>Estimate<span class="op">/</span>RES<span class="op">$</span>Estimate[<span class="dv">1</span>]),<span class="dv">0</span>)
+RES&lt;-<span class="kw">round</span>(RES[,<span class="op">-</span><span class="dv">2</span>],<span class="dv">2</span>)
+RES&lt;-<span class="kw">cbind</span>(<span class="dt">Estimand=</span><span class="kw">c</span>(<span class="st">&quot;TCE&quot;</span>,<span class="st">&quot;IDE&quot;</span>,<span class="st">&quot;IIE_1&quot;</span>,<span class="st">&quot;IIE_2&quot;</span>,<span class="st">&quot;IIE_3&quot;</span>,<span class="st">&quot;IIE_4&quot;</span>,<span class="st">&quot;IIE_int&quot;</span>),RES)
+
+<span class="kw">print</span>(RES,<span class="dt">row.names =</span> F)</code></pre></div>
+<pre><code>##  Estimand Estimate CIlow CIupp pvalue PropTCE
+##       TCE     0.12  0.05  0.20   0.00     100
+##       IDE     0.07  0.02  0.12   0.00      56
+##     IIE_1     0.01  0.00  0.01   0.04       4
+##     IIE_2     0.01  0.00  0.03   0.03      11
+##     IIE_3     0.04  0.03  0.05   0.00      33
+##     IIE_4     0.01  0.00  0.02   0.08       7
+##   IIE_int    -0.01 -0.02 -0.01   0.00     -11</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Can check bootstrap distribution is approx normal using (not run here)</span>
+<span class="co"># par(mfrow=c(3,3))</span>
+<span class="co"># for(i in 1:7) hist(bstrap$t[,i])</span></code></pre></div>
+<p>To learn more about the interpretation of these and the above results refer to the paper (reference below).</p>
+</div>
+<div id="estimate-mediation-effects-under-sequential-policies" class="section level3">
+<h3>Estimate mediation effects under sequential policies</h3>
+<p>The following code shows how to obtain estimates of mediation effects that emulate an RCT under sequential policies</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#set seed for reproducibility and also for estimates of TCE, IDE and IIE_1/IIE_seq1 obtained with the two RCT options to coincide</span>
+<span class="kw">set.seed</span>(<span class="dv">4750</span>) 
+
+<span class="co"># Estimate the effects with the bootrstrap</span>
+bstrap&lt;-<span class="kw">boot</span>(<span class="dt">data=</span>dat, <span class="dt">statistic=</span>medRCT_4med, 
+             <span class="dt">exposure=</span><span class="st">&quot;A&quot;</span>, <span class="dt">outcome=</span><span class="st">&quot;Y&quot;</span>, <span class="dt">mediators=</span><span class="kw">c</span>(<span class="st">&quot;M1&quot;</span>,<span class="st">&quot;M2&quot;</span>,<span class="st">&quot;M3&quot;</span>,<span class="st">&quot;M4&quot;</span>),
+             <span class="dt">confounders=</span><span class="kw">c</span>(<span class="st">&quot;C1&quot;</span>,<span class="st">&quot;C2&quot;</span>,<span class="st">&quot;C3&quot;</span>,<span class="st">&quot;C4&quot;</span>,<span class="st">&quot;C5&quot;</span>,<span class="st">&quot;C6&quot;</span>), <span class="dt">mcsim=</span><span class="dv">200</span>, <span class="dt">RCT=</span><span class="st">&quot;sequential&quot;</span>,
+             <span class="dt">stype=</span><span class="st">&quot;i&quot;</span>, <span class="dt">R=</span><span class="dv">2</span>)
+
+<span class="co"># Set-up results table</span>
+RES&lt;-<span class="kw">data.frame</span>(<span class="dt">Estimate=</span>bstrap<span class="op">$</span>t0,<span class="dt">SE=</span><span class="kw">apply</span>(bstrap<span class="op">$</span>t,<span class="dv">2</span>,sd,<span class="dt">na.rm=</span>T))
+RES<span class="op">$</span>CIlow&lt;-RES<span class="op">$</span>Estimate<span class="op">-</span><span class="fl">1.96</span><span class="op">*</span>RES<span class="op">$</span>SE
+RES<span class="op">$</span>CIupp&lt;-RES<span class="op">$</span>Estimate<span class="op">+</span><span class="fl">1.96</span><span class="op">*</span>RES<span class="op">$</span>SE
+RES<span class="op">$</span>pvalue&lt;-<span class="dv">2</span><span class="op">*</span><span class="kw">pnorm</span>(<span class="kw">abs</span>(RES<span class="op">$</span>Estimate<span class="op">/</span>RES<span class="op">$</span>SE),<span class="dt">lower.tail =</span> F)
+RES<span class="op">$</span>PropTCE&lt;-<span class="kw">round</span>(<span class="dv">100</span><span class="op">*</span>(RES<span class="op">$</span>Estimate<span class="op">/</span>RES<span class="op">$</span>Estimate[<span class="dv">1</span>]),<span class="dv">0</span>)
+RES&lt;-<span class="kw">round</span>(RES[,<span class="op">-</span><span class="dv">2</span>],<span class="dv">2</span>)
+RES&lt;-<span class="kw">cbind</span>(<span class="dt">Estimand=</span><span class="kw">c</span>(<span class="st">&quot;TCE&quot;</span>,<span class="st">&quot;IDE&quot;</span>,<span class="st">&quot;IIE_seqfull&quot;</span>,<span class="st">&quot;IIE_seq1&quot;</span>,<span class="st">&quot;IIE_seq2&quot;</span>,<span class="st">&quot;IIE_seq3&quot;</span>,<span class="st">&quot;IIE_seq4&quot;</span>,<span class="st">&quot;IIE_seqint&quot;</span>),RES)
+
+<span class="kw">print</span>(RES,<span class="dt">row.names =</span> F)</code></pre></div>
+<pre><code>##     Estimand Estimate CIlow CIupp pvalue PropTCE
+##          TCE     0.12  0.05  0.20   0.00     100
+##          IDE     0.07  0.02  0.12   0.00      56
+##  IIE_seqfull     0.06  0.03  0.08   0.00      46
+##     IIE_seq1     0.01  0.00  0.01   0.04       4
+##     IIE_seq2     0.01  0.00  0.03   0.10      10
+##     IIE_seq3     0.04  0.03  0.05   0.00      30
+##     IIE_seq4     0.00  0.00  0.00   0.08       2
+##   IIE_seqint     0.00  0.00  0.00   0.00      -2</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Can check bootstrap distribution is approx normal using (not run here)</span>
+<span class="co"># par(mfrow=c(3,3))</span>
+<span class="co"># for(i in 1:7) hist(bstrap$t[,i])</span></code></pre></div>
+</div>
+</div>
+<div id="cite-this-as" class="section level2">
+<h2>Cite this as:</h2>
+<p>Moreno-Betancur M, Moran P, Becker D, Patton GC, Carlin JB. “Defining mediation effects for multiple mediators using the concept of the target randomized trial”. <a href="https://arxiv.org/abs/1907.06734" class="uri">https://arxiv.org/abs/1907.06734</a></p>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

@@ -1,6 +1,7 @@
 ---
 title: "`medRCT`: Estimating mediation effects that emulate a target randomized controlled trial (RCT)"
 author: "Margarita Moreno-Betancur"
+date: September 11, 2019
 output: 
   rmarkdown::html_vignette:
     keep_md: true
@@ -10,7 +11,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
   
-This vignette provides a worked example on simulated data showing how to use the R function `medRCT_4med` provided in [this](https://github.com/moreno-betancur/medRCT) repository for the paper (click [here](https://raw.githack.com/moreno-betancur/medRCT/master/medRCT_4med.R) to download it): 
+This vignette provides a worked example on simulated data showing how to use the R function `medRCT_4med` downloadable [here](https://raw.githack.com/moreno-betancur/medRCT/master/medRCT_4med.R) and stored [here](https://github.com/moreno-betancur/medRCT), which accompanies the paper: 
 
 >Moreno-Betancur M, Moran P, Becker D, Patton GC, Carlin JB. "Defining mediation effects for multiple mediators using the concept of the target randomized trial". [https://arxiv.org/abs/1907.06734](https://arxiv.org/abs/1907.06734)
 
@@ -18,7 +19,7 @@ This vignette provides a worked example on simulated data showing how to use the
 
 ## Loading and looking at the example dataset
 
-To illustrate, we use a dataset `dat4med.csv` (available for download [here](https://raw.githack.com/moreno-betancur/medRCT/master/dat4med.csv)) that was simulated roughly based on one imputed version of the real data from the Victorian Adolescent Health Cohort Study (VAHCS) that was analysed in the paper.
+To illustrate how to use the function, we use a dataset `dat4med.csv` (downloadable [here](https://raw.githack.com/moreno-betancur/medRCT/master/dat4med.csv)) that was simulated roughly based on one imputed version of the real data that was analysed in the paper, from the Victorian Adolescent Health Cohort Study (VAHCS).
   
 The dataset consists of the following variables, none of which has missing data:
 
@@ -57,11 +58,11 @@ apply(dat[, 2:ncol(dat)], 2, mean, na.rm = F)
 ## 0.1095 0.2495
 ```
 
-## Loading function and required libraries
+## Loading the function and required libraries
 
-The function `medRCT_4med` is provided in [this](https://github.com/moreno-betancur/medRCT) repository to conduct analyses as in the paper (click [here](https://raw.githack.com/moreno-betancur/medRCT/master/medRCT_4med.R) to download it). 
+The function `medRCT_4med` is dowloadable [here](https://raw.githack.com/moreno-betancur/medRCT/master/medRCT_4med.R) and can be used to conduct analyses as in [the paper](https://arxiv.org/abs/1907.06734). 
 
-While there is a plan to make the function more general in the future, this version of the function assumes a setting with 4 binary interdependent mediators, with exposure and outcome being binary as well. During the estimation process, the function includes all 2-way interactions amongst exposure and mediators in the parametric models that are the building pieces for the simulation-based g-computation estimation procedure. The package `zoo` is required by the function and it is set up so that it can be called using the `boot` function from the `boot` package, which also needs to be loaded to run the analysis using the bootstrap. 
+While the plan is to make the function more general in the future (watch [this](https://github.com/moreno-betancur/medRCT) space!), the version of the function available for now assumes a setting with 4 binary interdependent mediators, with exposure and outcome being binary as well. The function depends on the R package `zoo` and it is set up so that it can be called using the `boot` function from the `boot` package, which also needs to be loaded to run the analysis using the bootstrap: 
 
 
 ```r
@@ -73,37 +74,38 @@ source("medRCT_4med.R")
 The function `medRCT_4med` takes the following arguments:
 
 * `dat`: Dataset (data.frame)
-* `ind`: Indices of records in `dat` to conduct the analysis on (numerical vector), which is required by `boot`; default is to use all of `dat`, as is
+* `ind`: Indices of records in `dat` on which to conduct the analysis (numerical vector), which is required by `boot`; default is to use `dat` as is
 * `exposure`: Exposure name (character vector, length 1)
 * `outcome`: Outcome name (character vector, length 1)
 * `mediators`: Names of mediators (character vector, length 4), in the desired order for reporting; this order also defines the order of the sequence for effects under sequential policies
-* `confounders`: Names of the confounders in the dataset (Character vector, length>0)
+* `confounders`: Names of the confounders in the dataset (character vector, length>0)
 * `sim`: Number of desired Monte Carlo simulation runs; default is to use 200 runs
-* `RCT`: Type of RCT to emulate (charactervector, length 1); must be either "one-policy" to estimate mediation effects emulating an RCT under the one-policy premise,  "sequential" to estimate mediation effects emulating an RCT under sequential policies, or "both" to obtain both sets of estimates
+* `RCT`: Type of RCT to emulate (character vector, length 1); must be either "one-policy" to estimate mediation effects emulating an RCT under the one-policy premise,  "sequential" to estimate mediation effects emulating an RCT under sequential policies, or "both" to obtain both sets of estimates
 
+Of note, during the estimation process, the function includes all 2-way interactions amongst exposure and mediators in the parametric models that are the building pieces for the simulation-based g-computation estimation procedure. 
 
-## Using the function
+## Using the function `medRCT_4med` 
 
 ### Estimate mediation effects under "one-policy premise"
 
-The following code shows how to obtain estimates of mediation effects that emulate an RCT under a "one-policy premise"
+The following code shows how to obtain estimates of mediation effects that emulate an RCT under a "one-policy premise", using 100 bootstrap runs (for illustrative purposes - might want to use more in practice)
 
 ```r
-#set seed for reproducibility and also for estimates of TCE, IDE and IIE_1/IIE_seq1 obtained with the two RCT options to coincide
+# Set seed for reproducibility but also so that estimates of TCE, IDE and IIE_1/IIE_seq1 obtained using either of the two RCT options ("one-policy" or "sequential") coincide
 set.seed(4750) 
 
 # Estimate the effects with the bootrstrap
 bstrap<-boot(data=dat, statistic=medRCT_4med, 
              exposure="A", outcome="Y", mediators=c("M1","M2","M3","M4"),
              confounders=c("C1","C2","C3","C4","C5","C6"), mcsim=200, RCT="one-policy",
-             stype="i", R=2)
+             stype="i", R=100)
 
 # Set-up results table
 RES<-data.frame(Estimate=bstrap$t0,SE=apply(bstrap$t,2,sd,na.rm=T))
 RES$CIlow<-RES$Estimate-1.96*RES$SE
 RES$CIupp<-RES$Estimate+1.96*RES$SE
 RES$pvalue<-2*pnorm(abs(RES$Estimate/RES$SE),lower.tail = F)
-RES$PropTCE<-round(100*(RES$Estimate/RES$Estimate[1]),0)
+RES$PropTCE<-round(100*(RES$Estimate/RES$Estimate[1]),0) #Express effects as a proportion of the TCE
 RES<-round(RES[,-2],2)
 RES<-cbind(Estimand=c("TCE","IDE","IIE_1","IIE_2","IIE_3","IIE_4","IIE_int"),RES)
 
@@ -112,13 +114,13 @@ print(RES,row.names = F)
 
 ```
 ##  Estimand Estimate CIlow CIupp pvalue PropTCE
-##       TCE     0.12  0.05  0.20   0.00     100
-##       IDE     0.07  0.02  0.12   0.00      56
-##     IIE_1     0.01  0.00  0.01   0.04       4
-##     IIE_2     0.01  0.00  0.03   0.03      11
-##     IIE_3     0.04  0.03  0.05   0.00      33
-##     IIE_4     0.01  0.00  0.02   0.08       7
-##   IIE_int    -0.01 -0.02 -0.01   0.00     -11
+##       TCE     0.12  0.06  0.19   0.00     100
+##       IDE     0.07  0.01  0.13   0.03      55
+##     IIE_1     0.01 -0.01  0.02   0.35       5
+##     IIE_2     0.01  0.00  0.03   0.07      10
+##     IIE_3     0.04  0.02  0.06   0.00      33
+##     IIE_4     0.01 -0.01  0.03   0.36       7
+##   IIE_int    -0.01 -0.03  0.00   0.17      -9
 ```
 
 ```r
@@ -134,21 +136,21 @@ To learn more about the interpretation of these and the above results refer to t
 The following code shows how to obtain estimates of mediation effects that emulate an RCT under sequential policies
 
 ```r
-#set seed for reproducibility and also for estimates of TCE, IDE and IIE_1/IIE_seq1 obtained with the two RCT options to coincide
+# Set seed for reproducibility but also so that estimates of TCE, IDE and IIE_1/IIE_seq1 obtained using either of the two RCT options ("one-policy" or "sequential") coincide
 set.seed(4750) 
 
 # Estimate the effects with the bootrstrap
 bstrap<-boot(data=dat, statistic=medRCT_4med, 
              exposure="A", outcome="Y", mediators=c("M1","M2","M3","M4"),
              confounders=c("C1","C2","C3","C4","C5","C6"), mcsim=200, RCT="sequential",
-             stype="i", R=2)
+             stype="i", R=100)
 
 # Set-up results table
 RES<-data.frame(Estimate=bstrap$t0,SE=apply(bstrap$t,2,sd,na.rm=T))
 RES$CIlow<-RES$Estimate-1.96*RES$SE
 RES$CIupp<-RES$Estimate+1.96*RES$SE
 RES$pvalue<-2*pnorm(abs(RES$Estimate/RES$SE),lower.tail = F)
-RES$PropTCE<-round(100*(RES$Estimate/RES$Estimate[1]),0)
+RES$PropTCE<-round(100*(RES$Estimate/RES$Estimate[1]),0) #Express effects as a proportion of the TCE
 RES<-round(RES[,-2],2)
 RES<-cbind(Estimand=c("TCE","IDE","IIE_seqfull","IIE_seq1","IIE_seq2","IIE_seq3","IIE_seq4","IIE_seqint"),RES)
 
@@ -157,14 +159,14 @@ print(RES,row.names = F)
 
 ```
 ##     Estimand Estimate CIlow CIupp pvalue PropTCE
-##          TCE     0.12  0.05  0.20   0.00     100
-##          IDE     0.07  0.02  0.12   0.00      56
-##  IIE_seqfull     0.06  0.03  0.08   0.00      46
-##     IIE_seq1     0.01  0.00  0.01   0.04       4
-##     IIE_seq2     0.01  0.00  0.03   0.10      10
-##     IIE_seq3     0.04  0.03  0.05   0.00      30
-##     IIE_seq4     0.00  0.00  0.00   0.08       2
-##   IIE_seqint     0.00  0.00  0.00   0.00      -2
+##          TCE     0.12  0.06  0.19   0.00     100
+##          IDE     0.07  0.01  0.13   0.03      55
+##  IIE_seqfull     0.06  0.03  0.09   0.00      47
+##     IIE_seq1     0.01 -0.01  0.02   0.35       5
+##     IIE_seq2     0.01  0.00  0.02   0.08       9
+##     IIE_seq3     0.04  0.02  0.06   0.00      31
+##     IIE_seq4     0.00 -0.01  0.01   0.83       1
+##   IIE_seqint     0.00 -0.01  0.00   0.21      -2
 ```
 
 ```r

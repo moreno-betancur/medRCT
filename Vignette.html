@@ -13,6 +13,7 @@
 
 <meta name="author" content="Margarita Moreno-Betancur" />
 
+<meta name="date" content="2019-09-11" />
 
 <title>medRCT: Estimating mediation effects that emulate a target randomized controlled trial (RCT)</title>
 
@@ -95,16 +96,17 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore"><code>medRCT</code>: Estimating mediation effects that emulate a target randomized controlled trial (RCT)</h1>
 <h4 class="author">Margarita Moreno-Betancur</h4>
+<h4 class="date">September 11, 2019</h4>
 
 
 
-<p>This vignette provides a worked example on simulated data showing how to use the R function <code>medRCT_4med</code> provided in <a href="https://github.com/moreno-betancur/medRCT">this</a> repository for the paper (click <a href="https://raw.githack.com/moreno-betancur/medRCT/master/medRCT_4med.R">here</a> to download it):</p>
+<p>This vignette provides a worked example on simulated data showing how to use the R function <code>medRCT_4med</code> downloadable <a href="https://raw.githack.com/moreno-betancur/medRCT/master/medRCT_4med.R">here</a> and stored <a href="https://github.com/moreno-betancur/medRCT">here</a>, which accompanies the paper:</p>
 <blockquote>
 <p>Moreno-Betancur M, Moran P, Becker D, Patton GC, Carlin JB. “Defining mediation effects for multiple mediators using the concept of the target randomized trial”. <a href="https://arxiv.org/abs/1907.06734" class="uri">https://arxiv.org/abs/1907.06734</a></p>
 </blockquote>
 <div id="loading-and-looking-at-the-example-dataset" class="section level2">
 <h2>Loading and looking at the example dataset</h2>
-<p>To illustrate, we use a dataset <code>dat4med.csv</code> (available for download <a href="https://raw.githack.com/moreno-betancur/medRCT/master/dat4med.csv">here</a>) that was simulated roughly based on one imputed version of the real data from the Victorian Adolescent Health Cohort Study (VAHCS) that was analysed in the paper.</p>
+<p>To illustrate how to use the function, we use a dataset <code>dat4med.csv</code> (downloadable <a href="https://raw.githack.com/moreno-betancur/medRCT/master/dat4med.csv">here</a>) that was simulated roughly based on one imputed version of the real data that was analysed in the paper, from the Victorian Adolescent Health Cohort Study (VAHCS).</p>
 <p>The dataset consists of the following variables, none of which has missing data:</p>
 <ul>
 <li>ID: identifier variable</li>
@@ -130,57 +132,58 @@ dat &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="
 ##     M4      Y 
 ## 0.1095 0.2495</code></pre>
 </div>
-<div id="loading-function-and-required-libraries" class="section level2">
-<h2>Loading function and required libraries</h2>
-<p>The function <code>medRCT_4med</code> is provided in <a href="https://github.com/moreno-betancur/medRCT">this</a> repository to conduct analyses as in the paper (click <a href="https://raw.githack.com/moreno-betancur/medRCT/master/medRCT_4med.R">here</a> to download it).</p>
-<p>While there is a plan to make the function more general in the future, this version of the function assumes a setting with 4 binary interdependent mediators, with exposure and outcome being binary as well. During the estimation process, the function includes all 2-way interactions amongst exposure and mediators in the parametric models that are the building pieces for the simulation-based g-computation estimation procedure. The package <code>zoo</code> is required by the function and it is set up so that it can be called using the <code>boot</code> function from the <code>boot</code> package, which also needs to be loaded to run the analysis using the bootstrap.</p>
+<div id="loading-the-function-and-required-libraries" class="section level2">
+<h2>Loading the function and required libraries</h2>
+<p>The function <code>medRCT_4med</code> is dowloadable <a href="https://raw.githack.com/moreno-betancur/medRCT/master/medRCT_4med.R">here</a> and can be used to conduct analyses as in <a href="https://arxiv.org/abs/1907.06734">the paper</a>.</p>
+<p>While the plan is to make the function more general in the future (watch <a href="https://github.com/moreno-betancur/medRCT">this</a> space!), the version of the function available for now assumes a setting with 4 binary interdependent mediators, with exposure and outcome being binary as well. The function depends on the R package <code>zoo</code> and it is set up so that it can be called using the <code>boot</code> function from the <code>boot</code> package, which also needs to be loaded to run the analysis using the bootstrap:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(boot)
 <span class="kw">library</span>(zoo)
 <span class="kw">source</span>(<span class="st">&quot;medRCT_4med.R&quot;</span>)</code></pre></div>
 <p>The function <code>medRCT_4med</code> takes the following arguments:</p>
 <ul>
 <li><code>dat</code>: Dataset (data.frame)</li>
-<li><code>ind</code>: Indices of records in <code>dat</code> to conduct the analysis on (numerical vector), which is required by <code>boot</code>; default is to use all of <code>dat</code>, as is</li>
+<li><code>ind</code>: Indices of records in <code>dat</code> on which to conduct the analysis (numerical vector), which is required by <code>boot</code>; default is to use <code>dat</code> as is</li>
 <li><code>exposure</code>: Exposure name (character vector, length 1)</li>
 <li><code>outcome</code>: Outcome name (character vector, length 1)</li>
 <li><code>mediators</code>: Names of mediators (character vector, length 4), in the desired order for reporting; this order also defines the order of the sequence for effects under sequential policies</li>
-<li><code>confounders</code>: Names of the confounders in the dataset (Character vector, length&gt;0)</li>
+<li><code>confounders</code>: Names of the confounders in the dataset (character vector, length&gt;0)</li>
 <li><code>sim</code>: Number of desired Monte Carlo simulation runs; default is to use 200 runs</li>
-<li><code>RCT</code>: Type of RCT to emulate (charactervector, length 1); must be either “one-policy” to estimate mediation effects emulating an RCT under the one-policy premise, “sequential” to estimate mediation effects emulating an RCT under sequential policies, or “both” to obtain both sets of estimates</li>
+<li><code>RCT</code>: Type of RCT to emulate (character vector, length 1); must be either “one-policy” to estimate mediation effects emulating an RCT under the one-policy premise, “sequential” to estimate mediation effects emulating an RCT under sequential policies, or “both” to obtain both sets of estimates</li>
 </ul>
+<p>Of note, during the estimation process, the function includes all 2-way interactions amongst exposure and mediators in the parametric models that are the building pieces for the simulation-based g-computation estimation procedure.</p>
 </div>
-<div id="using-the-function" class="section level2">
-<h2>Using the function</h2>
+<div id="using-the-function-medrct_4med" class="section level2">
+<h2>Using the function <code>medRCT_4med</code></h2>
 <div id="estimate-mediation-effects-under-one-policy-premise" class="section level3">
 <h3>Estimate mediation effects under “one-policy premise”</h3>
-<p>The following code shows how to obtain estimates of mediation effects that emulate an RCT under a “one-policy premise”</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#set seed for reproducibility and also for estimates of TCE, IDE and IIE_1/IIE_seq1 obtained with the two RCT options to coincide</span>
+<p>The following code shows how to obtain estimates of mediation effects that emulate an RCT under a “one-policy premise”, using 100 bootstrap runs (for illustrative purposes - might want to use more in practice)</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Set seed for reproducibility but also so that estimates of TCE, IDE and IIE_1/IIE_seq1 obtained using either of the two RCT options (&quot;one-policy&quot; or &quot;sequential&quot;) coincide</span>
 <span class="kw">set.seed</span>(<span class="dv">4750</span>) 
 
 <span class="co"># Estimate the effects with the bootrstrap</span>
 bstrap&lt;-<span class="kw">boot</span>(<span class="dt">data=</span>dat, <span class="dt">statistic=</span>medRCT_4med, 
              <span class="dt">exposure=</span><span class="st">&quot;A&quot;</span>, <span class="dt">outcome=</span><span class="st">&quot;Y&quot;</span>, <span class="dt">mediators=</span><span class="kw">c</span>(<span class="st">&quot;M1&quot;</span>,<span class="st">&quot;M2&quot;</span>,<span class="st">&quot;M3&quot;</span>,<span class="st">&quot;M4&quot;</span>),
              <span class="dt">confounders=</span><span class="kw">c</span>(<span class="st">&quot;C1&quot;</span>,<span class="st">&quot;C2&quot;</span>,<span class="st">&quot;C3&quot;</span>,<span class="st">&quot;C4&quot;</span>,<span class="st">&quot;C5&quot;</span>,<span class="st">&quot;C6&quot;</span>), <span class="dt">mcsim=</span><span class="dv">200</span>, <span class="dt">RCT=</span><span class="st">&quot;one-policy&quot;</span>,
-             <span class="dt">stype=</span><span class="st">&quot;i&quot;</span>, <span class="dt">R=</span><span class="dv">2</span>)
+             <span class="dt">stype=</span><span class="st">&quot;i&quot;</span>, <span class="dt">R=</span><span class="dv">100</span>)
 
 <span class="co"># Set-up results table</span>
 RES&lt;-<span class="kw">data.frame</span>(<span class="dt">Estimate=</span>bstrap<span class="op">$</span>t0,<span class="dt">SE=</span><span class="kw">apply</span>(bstrap<span class="op">$</span>t,<span class="dv">2</span>,sd,<span class="dt">na.rm=</span>T))
 RES<span class="op">$</span>CIlow&lt;-RES<span class="op">$</span>Estimate<span class="op">-</span><span class="fl">1.96</span><span class="op">*</span>RES<span class="op">$</span>SE
 RES<span class="op">$</span>CIupp&lt;-RES<span class="op">$</span>Estimate<span class="op">+</span><span class="fl">1.96</span><span class="op">*</span>RES<span class="op">$</span>SE
 RES<span class="op">$</span>pvalue&lt;-<span class="dv">2</span><span class="op">*</span><span class="kw">pnorm</span>(<span class="kw">abs</span>(RES<span class="op">$</span>Estimate<span class="op">/</span>RES<span class="op">$</span>SE),<span class="dt">lower.tail =</span> F)
-RES<span class="op">$</span>PropTCE&lt;-<span class="kw">round</span>(<span class="dv">100</span><span class="op">*</span>(RES<span class="op">$</span>Estimate<span class="op">/</span>RES<span class="op">$</span>Estimate[<span class="dv">1</span>]),<span class="dv">0</span>)
+RES<span class="op">$</span>PropTCE&lt;-<span class="kw">round</span>(<span class="dv">100</span><span class="op">*</span>(RES<span class="op">$</span>Estimate<span class="op">/</span>RES<span class="op">$</span>Estimate[<span class="dv">1</span>]),<span class="dv">0</span>) <span class="co">#Express effects as a proportion of the TCE</span>
 RES&lt;-<span class="kw">round</span>(RES[,<span class="op">-</span><span class="dv">2</span>],<span class="dv">2</span>)
 RES&lt;-<span class="kw">cbind</span>(<span class="dt">Estimand=</span><span class="kw">c</span>(<span class="st">&quot;TCE&quot;</span>,<span class="st">&quot;IDE&quot;</span>,<span class="st">&quot;IIE_1&quot;</span>,<span class="st">&quot;IIE_2&quot;</span>,<span class="st">&quot;IIE_3&quot;</span>,<span class="st">&quot;IIE_4&quot;</span>,<span class="st">&quot;IIE_int&quot;</span>),RES)
 
 <span class="kw">print</span>(RES,<span class="dt">row.names =</span> F)</code></pre></div>
 <pre><code>##  Estimand Estimate CIlow CIupp pvalue PropTCE
-##       TCE     0.12  0.05  0.20   0.00     100
-##       IDE     0.07  0.02  0.12   0.00      56
-##     IIE_1     0.01  0.00  0.01   0.04       4
-##     IIE_2     0.01  0.00  0.03   0.03      11
-##     IIE_3     0.04  0.03  0.05   0.00      33
-##     IIE_4     0.01  0.00  0.02   0.08       7
-##   IIE_int    -0.01 -0.02 -0.01   0.00     -11</code></pre>
+##       TCE     0.12  0.06  0.19   0.00     100
+##       IDE     0.07  0.01  0.13   0.03      55
+##     IIE_1     0.01 -0.01  0.02   0.35       5
+##     IIE_2     0.01  0.00  0.03   0.07      10
+##     IIE_3     0.04  0.02  0.06   0.00      33
+##     IIE_4     0.01 -0.01  0.03   0.36       7
+##   IIE_int    -0.01 -0.03  0.00   0.17      -9</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Can check bootstrap distribution is approx normal using (not run here)</span>
 <span class="co"># par(mfrow=c(3,3))</span>
 <span class="co"># for(i in 1:7) hist(bstrap$t[,i])</span></code></pre></div>
@@ -189,34 +192,34 @@ RES&lt;-<span class="kw">cbind</span>(<span class="dt">Estimand=</span><span cla
 <div id="estimate-mediation-effects-under-sequential-policies" class="section level3">
 <h3>Estimate mediation effects under sequential policies</h3>
 <p>The following code shows how to obtain estimates of mediation effects that emulate an RCT under sequential policies</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#set seed for reproducibility and also for estimates of TCE, IDE and IIE_1/IIE_seq1 obtained with the two RCT options to coincide</span>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Set seed for reproducibility but also so that estimates of TCE, IDE and IIE_1/IIE_seq1 obtained using either of the two RCT options (&quot;one-policy&quot; or &quot;sequential&quot;) coincide</span>
 <span class="kw">set.seed</span>(<span class="dv">4750</span>) 
 
 <span class="co"># Estimate the effects with the bootrstrap</span>
 bstrap&lt;-<span class="kw">boot</span>(<span class="dt">data=</span>dat, <span class="dt">statistic=</span>medRCT_4med, 
              <span class="dt">exposure=</span><span class="st">&quot;A&quot;</span>, <span class="dt">outcome=</span><span class="st">&quot;Y&quot;</span>, <span class="dt">mediators=</span><span class="kw">c</span>(<span class="st">&quot;M1&quot;</span>,<span class="st">&quot;M2&quot;</span>,<span class="st">&quot;M3&quot;</span>,<span class="st">&quot;M4&quot;</span>),
              <span class="dt">confounders=</span><span class="kw">c</span>(<span class="st">&quot;C1&quot;</span>,<span class="st">&quot;C2&quot;</span>,<span class="st">&quot;C3&quot;</span>,<span class="st">&quot;C4&quot;</span>,<span class="st">&quot;C5&quot;</span>,<span class="st">&quot;C6&quot;</span>), <span class="dt">mcsim=</span><span class="dv">200</span>, <span class="dt">RCT=</span><span class="st">&quot;sequential&quot;</span>,
-             <span class="dt">stype=</span><span class="st">&quot;i&quot;</span>, <span class="dt">R=</span><span class="dv">2</span>)
+             <span class="dt">stype=</span><span class="st">&quot;i&quot;</span>, <span class="dt">R=</span><span class="dv">100</span>)
 
 <span class="co"># Set-up results table</span>
 RES&lt;-<span class="kw">data.frame</span>(<span class="dt">Estimate=</span>bstrap<span class="op">$</span>t0,<span class="dt">SE=</span><span class="kw">apply</span>(bstrap<span class="op">$</span>t,<span class="dv">2</span>,sd,<span class="dt">na.rm=</span>T))
 RES<span class="op">$</span>CIlow&lt;-RES<span class="op">$</span>Estimate<span class="op">-</span><span class="fl">1.96</span><span class="op">*</span>RES<span class="op">$</span>SE
 RES<span class="op">$</span>CIupp&lt;-RES<span class="op">$</span>Estimate<span class="op">+</span><span class="fl">1.96</span><span class="op">*</span>RES<span class="op">$</span>SE
 RES<span class="op">$</span>pvalue&lt;-<span class="dv">2</span><span class="op">*</span><span class="kw">pnorm</span>(<span class="kw">abs</span>(RES<span class="op">$</span>Estimate<span class="op">/</span>RES<span class="op">$</span>SE),<span class="dt">lower.tail =</span> F)
-RES<span class="op">$</span>PropTCE&lt;-<span class="kw">round</span>(<span class="dv">100</span><span class="op">*</span>(RES<span class="op">$</span>Estimate<span class="op">/</span>RES<span class="op">$</span>Estimate[<span class="dv">1</span>]),<span class="dv">0</span>)
+RES<span class="op">$</span>PropTCE&lt;-<span class="kw">round</span>(<span class="dv">100</span><span class="op">*</span>(RES<span class="op">$</span>Estimate<span class="op">/</span>RES<span class="op">$</span>Estimate[<span class="dv">1</span>]),<span class="dv">0</span>) <span class="co">#Express effects as a proportion of the TCE</span>
 RES&lt;-<span class="kw">round</span>(RES[,<span class="op">-</span><span class="dv">2</span>],<span class="dv">2</span>)
 RES&lt;-<span class="kw">cbind</span>(<span class="dt">Estimand=</span><span class="kw">c</span>(<span class="st">&quot;TCE&quot;</span>,<span class="st">&quot;IDE&quot;</span>,<span class="st">&quot;IIE_seqfull&quot;</span>,<span class="st">&quot;IIE_seq1&quot;</span>,<span class="st">&quot;IIE_seq2&quot;</span>,<span class="st">&quot;IIE_seq3&quot;</span>,<span class="st">&quot;IIE_seq4&quot;</span>,<span class="st">&quot;IIE_seqint&quot;</span>),RES)
 
 <span class="kw">print</span>(RES,<span class="dt">row.names =</span> F)</code></pre></div>
 <pre><code>##     Estimand Estimate CIlow CIupp pvalue PropTCE
-##          TCE     0.12  0.05  0.20   0.00     100
-##          IDE     0.07  0.02  0.12   0.00      56
-##  IIE_seqfull     0.06  0.03  0.08   0.00      46
-##     IIE_seq1     0.01  0.00  0.01   0.04       4
-##     IIE_seq2     0.01  0.00  0.03   0.10      10
-##     IIE_seq3     0.04  0.03  0.05   0.00      30
-##     IIE_seq4     0.00  0.00  0.00   0.08       2
-##   IIE_seqint     0.00  0.00  0.00   0.00      -2</code></pre>
+##          TCE     0.12  0.06  0.19   0.00     100
+##          IDE     0.07  0.01  0.13   0.03      55
+##  IIE_seqfull     0.06  0.03  0.09   0.00      47
+##     IIE_seq1     0.01 -0.01  0.02   0.35       5
+##     IIE_seq2     0.01  0.00  0.02   0.08       9
+##     IIE_seq3     0.04  0.02  0.06   0.00      31
+##     IIE_seq4     0.00 -0.01  0.01   0.83       1
+##   IIE_seqint     0.00 -0.01  0.00   0.21      -2</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Can check bootstrap distribution is approx normal using (not run here)</span>
 <span class="co"># par(mfrow=c(3,3))</span>
 <span class="co"># for(i in 1:7) hist(bstrap$t[,i])</span></code></pre></div>

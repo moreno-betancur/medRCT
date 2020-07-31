@@ -13,8 +13,7 @@ vignette: >
   
 This vignette provides a worked example on simulated data showing how to use the R function `medRCT_4med` downloadable [here](https://raw.githack.com/moreno-betancur/medRCT/master/medRCT_4med.R) and stored [here](https://github.com/moreno-betancur/medRCT), which accompanies the paper: 
 
->Moreno-Betancur M, Moran P, Becker D, Patton GC, Carlin JB. "Defining mediation effects for multiple mediators using the concept of the target randomized trial". [https://arxiv.org/abs/1907.06734](https://arxiv.org/abs/1907.06734)
-
+>Moreno-Betancur M, Moran P, Becker D, Patton GC, Carlin JB. "Mediation effects that emulate a target randomised trial: Simulation-based evaluation of ill-defined interventions on multiple mediators". [https://arxiv.org/abs/1907.06734](https://arxiv.org/abs/1907.06734)
 
 
 ## Loading and looking at the example dataset
@@ -179,6 +178,7 @@ print(RES,row.names = F)
 
 ## Cite this as:
 
-Moreno-Betancur M, Moran P, Becker D, Patton GC, Carlin JB. "Defining mediation effects for multiple mediators using the concept of the target randomized trial". [https://arxiv.org/abs/1907.06734](https://arxiv.org/abs/1907.06734)
+Moreno-Betancur M, Moran P, Becker D, Patton GC, Carlin JB. "Mediation effects that emulate a target randomised trial: Simulation-based evaluation of ill-defined interventions on multiple mediators". [https://arxiv.org/abs/1907.06734](https://arxiv.org/abs/1907.06734)
+
 
 

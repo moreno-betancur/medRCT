@@ -176,9 +176,9 @@ print(RES,row.names = F)
 
 
 
-## Cite this as:
+## Cite this as follows:
 
-Moreno-Betancur M, Moran P, Becker D, Patton GC, Carlin JB. "Mediation effects that emulate a target randomised trial: Simulation-based evaluation of ill-defined interventions on multiple mediators". [https://arxiv.org/abs/1907.06734](https://arxiv.org/abs/1907.06734)
+Moreno-Betancur M, Moran P, Becker D, Patton GC, Carlin JB. "Mediation effects that emulate a target randomised trial: Simulation-based evaluation of ill-defined interventions on multiple mediators".  [https://arxiv.org/abs/1907.06734](https://arxiv.org/abs/1907.06734)
 
 
 

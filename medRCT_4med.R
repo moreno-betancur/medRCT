@@ -5,10 +5,10 @@
 #  under the "one-policy premise" or under sequential policies with 4 mediators #
 #  as per the paper:                                                            #
 #                                                                               #
-#    Moreno-Betancur et al. "Mediation effects that emulate a target randomised #
+#    Moreno-Betancur et al."Mediation effects that emulate a target randomised  #
 #                          trial: Simulation-based evaluation of ill-defined    #
 #                          interventions on multiple mediators"                 # 
-#                         (https://arxiv.org/abs/1907.06734)                    #
+#                          (https://arxiv.org/abs/1907.06734)                   #
 #                                                                               #
 #                                                                               #
 #  Margarita Moreno-Betancur, 11 Sept 2019                                      #

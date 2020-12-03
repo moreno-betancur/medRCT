@@ -1,7 +1,7 @@
 ---
 title: "`medRCT`: Estimating mediation effects that emulate a target randomized controlled trial (RCT)"
 author: "Margarita Moreno-Betancur"
-date: September 11, 2019
+date: December 3, 2020
 output: 
   rmarkdown::html_vignette:
     keep_md: true
@@ -13,7 +13,7 @@ vignette: >
   
 This vignette provides a worked example on simulated data showing how to use the R function `medRCT_4med` downloadable [here](https://raw.githack.com/moreno-betancur/medRCT/master/medRCT_4med.R) and stored [here](https://github.com/moreno-betancur/medRCT), which accompanies the paper: 
 
->Moreno-Betancur M, Moran P, Becker D, Patton GC, Carlin JB. "Defining mediation effects for multiple mediators using the concept of the target randomized trial". [https://arxiv.org/abs/1907.06734](https://arxiv.org/abs/1907.06734)
+>Moreno-Betancur M, Moran P, Becker D, Patton GC, Carlin JB. "Mediation effects that emulate a target randomised trial: Simulation-based evaluation of ill-defined interventions on multiple mediators". [https://arxiv.org/abs/1907.06734](https://arxiv.org/abs/1907.06734)
 
 ```{r global_options, include=FALSE}
 knitr::opts_chunk$set(fig.width=7, fig.height=5, fig.path='Figs/',
@@ -62,7 +62,7 @@ The function `medRCT_4med` takes the following arguments:
 * `mediators`: Names of mediators (character vector, length 4), in the desired order for reporting; this order also defines the order of the sequence for effects under sequential policies
 * `confounders`: Names of the confounders in the dataset (character vector, length>0)
 * `sim`: Number of desired Monte Carlo simulation runs; default is to use 200 runs
-* `RCT`: Type of RCT to emulate (character vector, length 1); must be either "one-policy" to estimate mediation effects emulating an RCT under the one-policy premise,  "sequential" to estimate mediation effects emulating an RCT under sequential policies, or "both" to obtain both sets of estimates
+* `RCT`: Type of RCT to emulate (character vector, length 1); must be either "one-policy_A" or "one-policy_B" to estimate mediation effects emulating an RCT under the one-policy premise using approches (a) and (b) in the paper, respectively;  "sequential" to estimate mediation effects emulating an RCT under sequential policies; or "all" to obtain all sets of estimates
 
 Of note, during the estimation process, the function includes all 2-way interactions amongst exposure and mediators in the parametric models that are the building pieces for the simulation-based g-computation estimation procedure. 
 
@@ -70,15 +70,15 @@ Of note, during the estimation process, the function includes all 2-way interact
 
 ### Estimate mediation effects under "one-policy premise"
 
-The following code shows how to obtain estimates of mediation effects that emulate an RCT under a "one-policy premise", using 100 bootstrap runs (for illustrative purposes - might want to use more in practice)
+The following code shows how to obtain estimates of mediation effects that emulate an RCT under a "one-policy premise", using approach (a) and 100 bootstrap runs (for illustrative purposes - might want to use more in practice)
 ```{r}
-# Set seed for reproducibility but also so that estimates of TCE, IDE and IIE_1/IIE_seq1 obtained using either of the two RCT options ("one-policy" or "sequential") coincide
+# Set seed for reproducibility but also so that estimates of common effects obtained using either of the RCT options coincide
 set.seed(4750) 
 
 # Estimate the effects with the bootrstrap
 bstrap<-boot(data=dat, statistic=medRCT_4med, 
              exposure="A", outcome="Y", mediators=c("M1","M2","M3","M4"),
-             confounders=c("C1","C2","C3","C4","C5","C6"), mcsim=200, RCT="one-policy",
+             confounders=c("C1","C2","C3","C4","C5","C6"), mcsim=200, RCT="one-policy_A",
              stype="i", R=100)
 
 # Set-up results table
@@ -97,13 +97,41 @@ print(RES,row.names = F)
 # for(i in 1:7) hist(bstrap$t[,i])
 ```
 
-To learn more about the interpretation of these and the above results refer to the paper (reference below).
+To obtain estimates of mediation effects under a "one-policy premise" using approach (b), one can use a similar code:
+
+```{r}
+# Set seed for reproducibility but also so that estimates of common effects obtained using either of the RCT options coincide
+set.seed(4750) 
+
+# Estimate the effects with the bootrstrap
+bstrap<-boot(data=dat, statistic=medRCT_4med, 
+             exposure="A", outcome="Y", mediators=c("M1","M2","M3","M4"),
+             confounders=c("C1","C2","C3","C4","C5","C6"), mcsim=200, RCT="one-policy_B",
+             stype="i", R=100)
+
+# Set-up results table
+RES<-data.frame(Estimate=bstrap$t0,SE=apply(bstrap$t,2,sd,na.rm=T))
+RES$CIlow<-RES$Estimate-1.96*RES$SE
+RES$CIupp<-RES$Estimate+1.96*RES$SE
+RES$pvalue<-2*pnorm(abs(RES$Estimate/RES$SE),lower.tail = F)
+RES$PropTCE<-round(100*(RES$Estimate/RES$Estimate[1]),0) #Express effects as a proportion of the TCE
+RES<-round(RES[,-2],2)
+RES<-cbind(Estimand=c("TCE","IDE","IIE_1_prime","IIE_2_prime","IIE_3_prime","IIE_4_prime","IIE_int_prime"),RES)
+
+print(RES,row.names = F)
+
+# Can check bootstrap distribution is approx normal using (not run here)
+# par(mfrow=c(3,3))
+# for(i in 1:7) hist(bstrap$t[,i])
+```
+
+To learn more about the interpretation of these results and how the two approaches above compare refer to the paper (reference below).
 
 ### Estimate mediation effects under sequential policies
 
 The following code shows how to obtain estimates of mediation effects that emulate an RCT under sequential policies
 ```{r}
-# Set seed for reproducibility but also so that estimates of TCE, IDE and IIE_1/IIE_seq1 obtained using either of the two RCT options ("one-policy" or "sequential") coincide
+# Set seed for reproducibility but also so that estimates of common effects obtained using either of the RCT options coincide
 set.seed(4750) 
 
 # Estimate the effects with the bootrstrap
@@ -132,6 +160,6 @@ print(RES,row.names = F)
 
 ## Cite this as:
 
-Moreno-Betancur M, Moran P, Becker D, Patton GC, Carlin JB. "Defining mediation effects for multiple mediators using the concept of the target randomized trial". [https://arxiv.org/abs/1907.06734](https://arxiv.org/abs/1907.06734)
+Moreno-Betancur M, Moran P, Becker D, Patton GC, Carlin JB. "Mediation effects that emulate a target randomised trial: Simulation-based evaluation of ill-defined interventions on multiple mediators". [https://arxiv.org/abs/1907.06734](https://arxiv.org/abs/1907.06734)
 
 

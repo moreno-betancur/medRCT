@@ -2,8 +2,7 @@
 #  medRCT_4med.R                                                                # 
 #                                                                               #
 #  Function to estimate mediation effects that emulate a target RCT             #
-#  under the "one-policy premise" or under sequential policies with 4 mediators #
-#  as per the paper:                                                            #
+#  with 4 mediators as per the paper:                                           #
 #                                                                               #
 #    Moreno-Betancur et al."Mediation effects that emulate a target randomised  #
 #                          trial: Simulation-based evaluation of ill-defined    #
@@ -11,7 +10,7 @@
 #                          (https://arxiv.org/abs/1907.06734)                   #
 #                                                                               #
 #                                                                               #
-#  Margarita Moreno-Betancur, 11 Sept 2019                                      #
+#  Margarita Moreno-Betancur, 3 Dec 2020                                        #
 #                                                                               #
 #################################################################################
 
@@ -104,6 +103,11 @@ medRCT_4med<-function(dat, ind=1:nrow(dat),exposure, outcome, mediators, confoun
   dat2$M1<-m1_1_mmmm
   m2_1_1mmm<-rbinom(n,1,predict(fit,newdata=dat2,type="response"))
   
+  dat2$A<-1
+  dat2$M1<-m1_0_mmmm
+  m2_1_0mmm<-rbinom(n,1,predict(fit,newdata=dat2,type="response"))
+  
+  
   #M3 - GIVEN M1
   
   fit<-glm(as.formula(paste("M3~A*M1+",confs)),data=data,family=binomial)
@@ -141,7 +145,7 @@ medRCT_4med<-function(dat, ind=1:nrow(dat),exposure, outcome, mediators, confoun
   dat2$M3<-m3_1_mmmm
   m4_1_mm1m<-rbinom(n,1,predict(fit,newdata=dat2,type="response"))
   
-
+  
   ### order 3 conditionals
   
   #M3 - GIVEN M1 and M2
@@ -158,6 +162,16 @@ medRCT_4med<-function(dat, ind=1:nrow(dat),exposure, outcome, mediators, confoun
   dat2$M2<-m2_1_1mmm
   m3_1_11mm<-rbinom(n,1,predict(fit,newdata=dat2,type="response"))
   
+  dat2$A<-1
+  dat2$M1<-m1_0_mmmm
+  dat2$M2<-m2_1_0mmm
+  m3_1_01mm<-rbinom(n,1,predict(fit,newdata=dat2,type="response"))
+  
+  dat2$A<-1
+  dat2$M1<-m1_1_mmmm
+  dat2$M2<-m2_0_mmmm
+  m3_1_10mm<-rbinom(n,1,predict(fit,newdata=dat2,type="response"))
+  
   
   #M4 - GIVEN M2 and M3
   
@@ -173,7 +187,7 @@ medRCT_4med<-function(dat, ind=1:nrow(dat),exposure, outcome, mediators, confoun
   dat2$M3<-m3_1_m1mm
   m4_1_m11m<-rbinom(n,1,predict(fit,newdata=dat2,type="response"))
   
- 
+  
   #M4 - GIVEN M1 and M3
   
   fit<-glm(as.formula(paste("M4~(A+M1+M3)^2+",confs)),data=data,family=binomial)
@@ -220,6 +234,23 @@ medRCT_4med<-function(dat, ind=1:nrow(dat),exposure, outcome, mediators, confoun
   dat2$M3<-m3_1_11mm
   m4_1_111m<-rbinom(n,1,predict(fit,newdata=dat2,type="response"))
   
+  dat2$A<-1
+  dat2$M1<-m1_0_mmmm
+  dat2$M2<-m2_1_0mmm
+  dat2$M3<-m3_1_01mm
+  m4_1_011m<-rbinom(n,1,predict(fit,newdata=dat2,type="response"))
+  
+  dat2$A<-1
+  dat2$M1<-m1_1_mmmm
+  dat2$M2<-m2_0_mmmm
+  dat2$M3<-m3_1_10mm
+  m4_1_101m<-rbinom(n,1,predict(fit,newdata=dat2,type="response"))
+  
+  dat2$A<-1
+  dat2$M1<-m1_1_mmmm
+  dat2$M2<-m2_1_1mmm
+  dat2$M3<-m3_0_mmmm
+  m4_1_110m<-rbinom(n,1,predict(fit,newdata=dat2,type="response"))
   
   ### outcome
   
@@ -272,7 +303,7 @@ medRCT_4med<-function(dat, ind=1:nrow(dat),exposure, outcome, mediators, confoun
   dat2$M4<-m4_1_m11m   
   
   y0<-rbinom(n,1,predict(fit,newdata=dat2,type="response"))
- 
+  
   p_1<-mean(y0)
   
   #p_2
@@ -282,7 +313,7 @@ medRCT_4med<-function(dat, ind=1:nrow(dat),exposure, outcome, mediators, confoun
   dat2$M2<-m2_0_mmmm
   dat2$M3<-m3_1_1mmm   
   dat2$M4<-m4_1_1m1m   
-
+  
   y0<-rbinom(n,1,predict(fit,newdata=dat2,type="response"))
   
   p_2<-mean(y0)
@@ -306,11 +337,48 @@ medRCT_4med<-function(dat, ind=1:nrow(dat),exposure, outcome, mediators, confoun
   dat2$M2<-m2_1_1mmm
   dat2$M3<-m3_1_11mm
   dat2$M4<-m4_0_mmmm
-
+  
   y0<-rbinom(n,1,predict(fit,newdata=dat2,type="response"))
   
   p_4<-mean(y0)
- 
+  
+  #p_1_prime
+  
+  dat2$A<-1
+  dat2$M1<-m1_0_mmmm
+  dat2$M2<-m2_1_0mmm #  
+  dat2$M3<-m3_1_01mm #
+  dat2$M4<-m4_1_011m #
+  
+  y0<-rbinom(n,1,predict(fit,newdata=dat2,type="response"))
+  
+  p_1_prime<-mean(y0)
+  
+  #p_2_prime
+  
+  dat2$A<-1
+  dat2$M1<-m1_1_mmmm
+  dat2$M2<-m2_0_mmmm
+  dat2$M3<-m3_1_10mm #   
+  dat2$M4<-m4_1_101m #    
+  
+  y0<-rbinom(n,1,predict(fit,newdata=dat2,type="response"))
+  
+  p_2_prime<-mean(y0)
+  
+  #p_3_prime
+  
+  dat2$A<-1
+  dat2$M1<-m1_1_mmmm
+  dat2$M2<-m2_1_1mmm
+  dat2$M3<-m3_0_mmmm
+  dat2$M4<-m4_1_110m #  
+  
+  y0<-rbinom(n,1,predict(fit,newdata=dat2,type="response"))
+  
+  p_3_prime<-mean(y0)
+  
+  
   #p_{1,2}
   
   dat2$A<-1
@@ -350,12 +418,20 @@ medRCT_4med<-function(dat, ind=1:nrow(dat),exposure, outcome, mediators, confoun
   ### ESTIMATE EFFECTS ###
   
   ### Effects under "one-policy premise"
+  # approach (a) 
   
   IIE_1<-p_trt-p_1
   IIE_2<-p_trt-p_2
   IIE_3<-p_trt-p_3
   IIE_4<-p_trt-p_4
   IIE_int<-p_trt-p_all-IIE_1-IIE_2-IIE_3-IIE_4
+  
+  # approach (b)
+  IIE_1_prime<-p_trt-p_1_prime
+  IIE_2_prime<-p_trt-p_2_prime
+  IIE_3_prime<-p_trt-p_3_prime
+  IIE_4_prime<-p_trt-p_4
+  IIE_int_prime<-p_trt-p_all-IIE_1_prime-IIE_2_prime-IIE_3_prime-IIE_4_prime
   
   ### Effects under sequential policies
   
@@ -373,14 +449,18 @@ medRCT_4med<-function(dat, ind=1:nrow(dat),exposure, outcome, mediators, confoun
   
   ### Collect and return results
   
-  if(RCT=="one-policy")
-      res<-c(TCE,IDE,IIE_1,IIE_2,IIE_3,IIE_4, IIE_int) else
-        if(RCT=="sequential")
-      res<-c(TCE,IDE, IIE_seqfull,IIE_seq1,IIE_seq2,IIE_seq3,IIE_seq4,IIE_seqint) else
-        if(RCT=="both")
-      res<-c(TCE,IDE, IIE_1,IIE_2,IIE_3,IIE_4, IIE_int, IIE_seqfull,IIE_seq1,IIE_seq2,IIE_seq3,IIE_seq4,IIE_seqint) else
-        stop("RCT argument must be either 'one-policy' or 'sequential' or 'both'")
-             
+  if(RCT=="one-policy_A")
+    res<-c(TCE,IDE,IIE_1,IIE_2,IIE_3,IIE_4, IIE_int) else
+      if(RCT=="one-policy_B") 
+        res<-c(TCE,IDE,IIE_1_prime,IIE_2_prime,IIE_3_prime,IIE_4_prime, IIE_int_prime) else
+          if(RCT=="sequential")
+            res<-c(TCE,IDE, IIE_seqfull,IIE_seq1,IIE_seq2,IIE_seq3,IIE_seq4,IIE_seqint) else
+              if(RCT=="all")
+                res<-c(TCE,IDE, IIE_1,IIE_2,IIE_3,IIE_4, IIE_int, 
+                       IIE_1_prime,IIE_2_prime,IIE_3_prime,IIE_4_prime, IIE_int_prime,
+                       IIE_seqfull,IIE_seq1,IIE_seq2,IIE_seq3,IIE_seq4,IIE_seqint) else
+                         stop("RCT argument must be either 'one-policy_A' or 'one-policy_B' or 'sequential' or 'all'")
+  
   if(!flag)return(res) else
     return(rep(NA,length(res)))
 }

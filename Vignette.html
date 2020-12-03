@@ -12,7 +12,7 @@
 
 <meta name="author" content="Margarita Moreno-Betancur" />
 
-<meta name="date" content="2019-09-11" />
+<meta name="date" content="2020-12-03" />
 
 <title>medRCT: Estimating mediation effects that emulate a target randomized controlled trial (RCT)</title>
 
@@ -303,7 +303,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 
 <h1 class="title toc-ignore"><code>medRCT</code>: Estimating mediation effects that emulate a target randomized controlled trial (RCT)</h1>
 <h4 class="author">Margarita Moreno-Betancur</h4>
-<h4 class="date">September 11, 2019</h4>
+<h4 class="date">December 3, 2020</h4>
 
 
 
@@ -322,8 +322,8 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <li>M1,…,M4: set of binary mediators</li>
 <li>Y: binary outcome</li>
 </ul>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="co"># Load and look</span></a>
-<a class="sourceLine" id="cb1-2" title="2">dat &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;dat4med.csv&quot;</span>)</a>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="co">#Load and look</span></a>
+<a class="sourceLine" id="cb1-2" title="2">dat&lt;-<span class="kw">read.csv</span>(<span class="st">&quot;dat4med.csv&quot;</span>)</a>
 <a class="sourceLine" id="cb1-3" title="3"><span class="kw">head</span>(dat)</a></code></pre></div>
 <pre><code>##   ID C1 C2 C3 C4 C5 C6 A M1 M2 M3 M4 Y
 ## 1  1  1  1  1  0  1  1 1  0  0  1  0 1
@@ -332,12 +332,12 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 ## 4  4  0  0  0  1  0  0 0  0  0  1  0 0
 ## 5  5  1  1  0  1  0  1 1  0  1  1  0 0
 ## 6  6  0  0  1  0  0  0 0  0  0  1  1 0</code></pre>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1"><span class="co"># Summarise</span></a>
-<a class="sourceLine" id="cb3-2" title="2"><span class="kw">apply</span>(dat[, <span class="dv">2</span><span class="op">:</span><span class="kw">ncol</span>(dat)], <span class="dv">2</span>, mean, <span class="dt">na.rm =</span> F)</a></code></pre></div>
-<pre><code>##     C1     C2     C3     C4     C5     C6      A     M1     M2     M3 
-## 0.3560 0.1370 0.1800 0.2470 0.5115 0.3425 0.0985 0.2235 0.1270 0.6615 
-##     M4      Y 
-## 0.1095 0.2495</code></pre>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1"><span class="co">#Summarise</span></a>
+<a class="sourceLine" id="cb3-2" title="2"><span class="kw">apply</span>(dat[,<span class="dv">2</span><span class="op">:</span><span class="kw">ncol</span>(dat)],<span class="dv">2</span>,mean,<span class="dt">na.rm=</span>F)</a></code></pre></div>
+<pre><code>##     C1     C2     C3     C4     C5     C6      A     M1     M2     M3     M4 
+## 0.3560 0.1370 0.1800 0.2470 0.5115 0.3425 0.0985 0.2235 0.1270 0.6615 0.1095 
+##      Y 
+## 0.2495</code></pre>
 </div>
 <div id="loading-the-function-and-required-libraries" class="section level2">
 <h2>Loading the function and required libraries</h2>
@@ -355,7 +355,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <li><code>mediators</code>: Names of mediators (character vector, length 4), in the desired order for reporting; this order also defines the order of the sequence for effects under sequential policies</li>
 <li><code>confounders</code>: Names of the confounders in the dataset (character vector, length&gt;0)</li>
 <li><code>sim</code>: Number of desired Monte Carlo simulation runs; default is to use 200 runs</li>
-<li><code>RCT</code>: Type of RCT to emulate (character vector, length 1); must be either “one-policy” to estimate mediation effects emulating an RCT under the one-policy premise, “sequential” to estimate mediation effects emulating an RCT under sequential policies, or “both” to obtain both sets of estimates</li>
+<li><code>RCT</code>: Type of RCT to emulate (character vector, length 1); must be either “one-policy_A” or “one-policy_B” to estimate mediation effects emulating an RCT under the one-policy premise using approches (a) and (b) in the paper, respectively; “sequential” to estimate mediation effects emulating an RCT under sequential policies; or “all” to obtain all sets of estimates</li>
 </ul>
 <p>Of note, during the estimation process, the function includes all 2-way interactions amongst exposure and mediators in the parametric models that are the building pieces for the simulation-based g-computation estimation procedure.</p>
 </div>
@@ -363,14 +363,14 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <h2>Using the function <code>medRCT_4med</code></h2>
 <div id="estimate-mediation-effects-under-one-policy-premise" class="section level3">
 <h3>Estimate mediation effects under “one-policy premise”</h3>
-<p>The following code shows how to obtain estimates of mediation effects that emulate an RCT under a “one-policy premise”, using 100 bootstrap runs (for illustrative purposes - might want to use more in practice)</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" title="1"><span class="co"># Set seed for reproducibility but also so that estimates of TCE, IDE and IIE_1/IIE_seq1 obtained using either of the two RCT options (&quot;one-policy&quot; or &quot;sequential&quot;) coincide</span></a>
+<p>The following code shows how to obtain estimates of mediation effects that emulate an RCT under a “one-policy premise”, using approach (a) and 100 bootstrap runs (for illustrative purposes - might want to use more in practice)</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" title="1"><span class="co"># Set seed for reproducibility but also so that estimates of common effects obtained using either of the RCT options coincide</span></a>
 <a class="sourceLine" id="cb6-2" title="2"><span class="kw">set.seed</span>(<span class="dv">4750</span>) </a>
 <a class="sourceLine" id="cb6-3" title="3"></a>
 <a class="sourceLine" id="cb6-4" title="4"><span class="co"># Estimate the effects with the bootrstrap</span></a>
 <a class="sourceLine" id="cb6-5" title="5">bstrap&lt;-<span class="kw">boot</span>(<span class="dt">data=</span>dat, <span class="dt">statistic=</span>medRCT_4med, </a>
 <a class="sourceLine" id="cb6-6" title="6">             <span class="dt">exposure=</span><span class="st">&quot;A&quot;</span>, <span class="dt">outcome=</span><span class="st">&quot;Y&quot;</span>, <span class="dt">mediators=</span><span class="kw">c</span>(<span class="st">&quot;M1&quot;</span>,<span class="st">&quot;M2&quot;</span>,<span class="st">&quot;M3&quot;</span>,<span class="st">&quot;M4&quot;</span>),</a>
-<a class="sourceLine" id="cb6-7" title="7">             <span class="dt">confounders=</span><span class="kw">c</span>(<span class="st">&quot;C1&quot;</span>,<span class="st">&quot;C2&quot;</span>,<span class="st">&quot;C3&quot;</span>,<span class="st">&quot;C4&quot;</span>,<span class="st">&quot;C5&quot;</span>,<span class="st">&quot;C6&quot;</span>), <span class="dt">mcsim=</span><span class="dv">200</span>, <span class="dt">RCT=</span><span class="st">&quot;one-policy&quot;</span>,</a>
+<a class="sourceLine" id="cb6-7" title="7">             <span class="dt">confounders=</span><span class="kw">c</span>(<span class="st">&quot;C1&quot;</span>,<span class="st">&quot;C2&quot;</span>,<span class="st">&quot;C3&quot;</span>,<span class="st">&quot;C4&quot;</span>,<span class="st">&quot;C5&quot;</span>,<span class="st">&quot;C6&quot;</span>), <span class="dt">mcsim=</span><span class="dv">200</span>, <span class="dt">RCT=</span><span class="st">&quot;one-policy_A&quot;</span>,</a>
 <a class="sourceLine" id="cb6-8" title="8">             <span class="dt">stype=</span><span class="st">&quot;i&quot;</span>, <span class="dt">R=</span><span class="dv">100</span>)</a>
 <a class="sourceLine" id="cb6-9" title="9"></a>
 <a class="sourceLine" id="cb6-10" title="10"><span class="co"># Set-up results table</span></a>
@@ -384,28 +384,24 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <a class="sourceLine" id="cb6-18" title="18"></a>
 <a class="sourceLine" id="cb6-19" title="19"><span class="kw">print</span>(RES,<span class="dt">row.names =</span> F)</a></code></pre></div>
 <pre><code>##  Estimand Estimate CIlow CIupp pvalue PropTCE
-##       TCE     0.12  0.06  0.19   0.00     100
-##       IDE     0.07  0.01  0.13   0.03      55
-##     IIE_1     0.01 -0.01  0.02   0.35       5
-##     IIE_2     0.01  0.00  0.03   0.07      10
-##     IIE_3     0.04  0.02  0.06   0.00      33
-##     IIE_4     0.01 -0.01  0.03   0.36       7
-##   IIE_int    -0.01 -0.03  0.00   0.17      -9</code></pre>
+##       TCE     0.12  0.06  0.18   0.00     100
+##       IDE     0.07  0.01  0.13   0.02      56
+##     IIE_1     0.01 -0.01  0.02   0.31       5
+##     IIE_2     0.01  0.00  0.03   0.07      11
+##     IIE_3     0.04  0.01  0.07   0.00      32
+##     IIE_4     0.01 -0.01  0.03   0.38       7
+##   IIE_int    -0.01 -0.03  0.00   0.05     -11</code></pre>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" title="1"><span class="co"># Can check bootstrap distribution is approx normal using (not run here)</span></a>
 <a class="sourceLine" id="cb8-2" title="2"><span class="co"># par(mfrow=c(3,3))</span></a>
 <a class="sourceLine" id="cb8-3" title="3"><span class="co"># for(i in 1:7) hist(bstrap$t[,i])</span></a></code></pre></div>
-<p>To learn more about the interpretation of these and the above results refer to the paper (reference below).</p>
-</div>
-<div id="estimate-mediation-effects-under-sequential-policies" class="section level3">
-<h3>Estimate mediation effects under sequential policies</h3>
-<p>The following code shows how to obtain estimates of mediation effects that emulate an RCT under sequential policies</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" title="1"><span class="co"># Set seed for reproducibility but also so that estimates of TCE, IDE and IIE_1/IIE_seq1 obtained using either of the two RCT options (&quot;one-policy&quot; or &quot;sequential&quot;) coincide</span></a>
+<p>To obtain estimates of mediation effects under a “one-policy premise” using approach (b), one can use a similar code:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" title="1"><span class="co"># Set seed for reproducibility but also so that estimates of common effects obtained using either of the RCT options coincide</span></a>
 <a class="sourceLine" id="cb9-2" title="2"><span class="kw">set.seed</span>(<span class="dv">4750</span>) </a>
 <a class="sourceLine" id="cb9-3" title="3"></a>
 <a class="sourceLine" id="cb9-4" title="4"><span class="co"># Estimate the effects with the bootrstrap</span></a>
 <a class="sourceLine" id="cb9-5" title="5">bstrap&lt;-<span class="kw">boot</span>(<span class="dt">data=</span>dat, <span class="dt">statistic=</span>medRCT_4med, </a>
 <a class="sourceLine" id="cb9-6" title="6">             <span class="dt">exposure=</span><span class="st">&quot;A&quot;</span>, <span class="dt">outcome=</span><span class="st">&quot;Y&quot;</span>, <span class="dt">mediators=</span><span class="kw">c</span>(<span class="st">&quot;M1&quot;</span>,<span class="st">&quot;M2&quot;</span>,<span class="st">&quot;M3&quot;</span>,<span class="st">&quot;M4&quot;</span>),</a>
-<a class="sourceLine" id="cb9-7" title="7">             <span class="dt">confounders=</span><span class="kw">c</span>(<span class="st">&quot;C1&quot;</span>,<span class="st">&quot;C2&quot;</span>,<span class="st">&quot;C3&quot;</span>,<span class="st">&quot;C4&quot;</span>,<span class="st">&quot;C5&quot;</span>,<span class="st">&quot;C6&quot;</span>), <span class="dt">mcsim=</span><span class="dv">200</span>, <span class="dt">RCT=</span><span class="st">&quot;sequential&quot;</span>,</a>
+<a class="sourceLine" id="cb9-7" title="7">             <span class="dt">confounders=</span><span class="kw">c</span>(<span class="st">&quot;C1&quot;</span>,<span class="st">&quot;C2&quot;</span>,<span class="st">&quot;C3&quot;</span>,<span class="st">&quot;C4&quot;</span>,<span class="st">&quot;C5&quot;</span>,<span class="st">&quot;C6&quot;</span>), <span class="dt">mcsim=</span><span class="dv">200</span>, <span class="dt">RCT=</span><span class="st">&quot;one-policy_B&quot;</span>,</a>
 <a class="sourceLine" id="cb9-8" title="8">             <span class="dt">stype=</span><span class="st">&quot;i&quot;</span>, <span class="dt">R=</span><span class="dv">100</span>)</a>
 <a class="sourceLine" id="cb9-9" title="9"></a>
 <a class="sourceLine" id="cb9-10" title="10"><span class="co"># Set-up results table</span></a>
@@ -415,25 +411,60 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <a class="sourceLine" id="cb9-14" title="14">RES<span class="op">$</span>pvalue&lt;-<span class="dv">2</span><span class="op">*</span><span class="kw">pnorm</span>(<span class="kw">abs</span>(RES<span class="op">$</span>Estimate<span class="op">/</span>RES<span class="op">$</span>SE),<span class="dt">lower.tail =</span> F)</a>
 <a class="sourceLine" id="cb9-15" title="15">RES<span class="op">$</span>PropTCE&lt;-<span class="kw">round</span>(<span class="dv">100</span><span class="op">*</span>(RES<span class="op">$</span>Estimate<span class="op">/</span>RES<span class="op">$</span>Estimate[<span class="dv">1</span>]),<span class="dv">0</span>) <span class="co">#Express effects as a proportion of the TCE</span></a>
 <a class="sourceLine" id="cb9-16" title="16">RES&lt;-<span class="kw">round</span>(RES[,<span class="op">-</span><span class="dv">2</span>],<span class="dv">2</span>)</a>
-<a class="sourceLine" id="cb9-17" title="17">RES&lt;-<span class="kw">cbind</span>(<span class="dt">Estimand=</span><span class="kw">c</span>(<span class="st">&quot;TCE&quot;</span>,<span class="st">&quot;IDE&quot;</span>,<span class="st">&quot;IIE_seqfull&quot;</span>,<span class="st">&quot;IIE_seq1&quot;</span>,<span class="st">&quot;IIE_seq2&quot;</span>,<span class="st">&quot;IIE_seq3&quot;</span>,<span class="st">&quot;IIE_seq4&quot;</span>,<span class="st">&quot;IIE_seqint&quot;</span>),RES)</a>
+<a class="sourceLine" id="cb9-17" title="17">RES&lt;-<span class="kw">cbind</span>(<span class="dt">Estimand=</span><span class="kw">c</span>(<span class="st">&quot;TCE&quot;</span>,<span class="st">&quot;IDE&quot;</span>,<span class="st">&quot;IIE_1_prime&quot;</span>,<span class="st">&quot;IIE_2_prime&quot;</span>,<span class="st">&quot;IIE_3_prime&quot;</span>,<span class="st">&quot;IIE_4_prime&quot;</span>,<span class="st">&quot;IIE_int_prime&quot;</span>),RES)</a>
 <a class="sourceLine" id="cb9-18" title="18"></a>
 <a class="sourceLine" id="cb9-19" title="19"><span class="kw">print</span>(RES,<span class="dt">row.names =</span> F)</a></code></pre></div>
-<pre><code>##     Estimand Estimate CIlow CIupp pvalue PropTCE
-##          TCE     0.12  0.06  0.19   0.00     100
-##          IDE     0.07  0.01  0.13   0.03      55
-##  IIE_seqfull     0.06  0.03  0.09   0.00      47
-##     IIE_seq1     0.01 -0.01  0.02   0.35       5
-##     IIE_seq2     0.01  0.00  0.02   0.08       9
-##     IIE_seq3     0.04  0.02  0.06   0.00      31
-##     IIE_seq4     0.00 -0.01  0.01   0.83       1
-##   IIE_seqint     0.00 -0.01  0.00   0.21      -2</code></pre>
+<pre><code>##       Estimand Estimate CIlow CIupp pvalue PropTCE
+##            TCE     0.12  0.06  0.18   0.00     100
+##            IDE     0.07  0.01  0.13   0.02      56
+##    IIE_1_prime     0.00 -0.01  0.01   0.71       1
+##    IIE_2_prime     0.01  0.00  0.03   0.17       9
+##    IIE_3_prime     0.04  0.01  0.06   0.01      30
+##    IIE_4_prime     0.01 -0.01  0.03   0.38       7
+##  IIE_int_prime     0.00 -0.01  0.01   0.46      -3</code></pre>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" title="1"><span class="co"># Can check bootstrap distribution is approx normal using (not run here)</span></a>
 <a class="sourceLine" id="cb11-2" title="2"><span class="co"># par(mfrow=c(3,3))</span></a>
 <a class="sourceLine" id="cb11-3" title="3"><span class="co"># for(i in 1:7) hist(bstrap$t[,i])</span></a></code></pre></div>
+<p>To learn more about the interpretation of these results and how the two approaches above compare refer to the paper (reference below).</p>
+</div>
+<div id="estimate-mediation-effects-under-sequential-policies" class="section level3">
+<h3>Estimate mediation effects under sequential policies</h3>
+<p>The following code shows how to obtain estimates of mediation effects that emulate an RCT under sequential policies</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" title="1"><span class="co"># Set seed for reproducibility but also so that estimates of common effects obtained using either of the RCT options coincide</span></a>
+<a class="sourceLine" id="cb12-2" title="2"><span class="kw">set.seed</span>(<span class="dv">4750</span>) </a>
+<a class="sourceLine" id="cb12-3" title="3"></a>
+<a class="sourceLine" id="cb12-4" title="4"><span class="co"># Estimate the effects with the bootrstrap</span></a>
+<a class="sourceLine" id="cb12-5" title="5">bstrap&lt;-<span class="kw">boot</span>(<span class="dt">data=</span>dat, <span class="dt">statistic=</span>medRCT_4med, </a>
+<a class="sourceLine" id="cb12-6" title="6">             <span class="dt">exposure=</span><span class="st">&quot;A&quot;</span>, <span class="dt">outcome=</span><span class="st">&quot;Y&quot;</span>, <span class="dt">mediators=</span><span class="kw">c</span>(<span class="st">&quot;M1&quot;</span>,<span class="st">&quot;M2&quot;</span>,<span class="st">&quot;M3&quot;</span>,<span class="st">&quot;M4&quot;</span>),</a>
+<a class="sourceLine" id="cb12-7" title="7">             <span class="dt">confounders=</span><span class="kw">c</span>(<span class="st">&quot;C1&quot;</span>,<span class="st">&quot;C2&quot;</span>,<span class="st">&quot;C3&quot;</span>,<span class="st">&quot;C4&quot;</span>,<span class="st">&quot;C5&quot;</span>,<span class="st">&quot;C6&quot;</span>), <span class="dt">mcsim=</span><span class="dv">200</span>, <span class="dt">RCT=</span><span class="st">&quot;sequential&quot;</span>,</a>
+<a class="sourceLine" id="cb12-8" title="8">             <span class="dt">stype=</span><span class="st">&quot;i&quot;</span>, <span class="dt">R=</span><span class="dv">100</span>)</a>
+<a class="sourceLine" id="cb12-9" title="9"></a>
+<a class="sourceLine" id="cb12-10" title="10"><span class="co"># Set-up results table</span></a>
+<a class="sourceLine" id="cb12-11" title="11">RES&lt;-<span class="kw">data.frame</span>(<span class="dt">Estimate=</span>bstrap<span class="op">$</span>t0,<span class="dt">SE=</span><span class="kw">apply</span>(bstrap<span class="op">$</span>t,<span class="dv">2</span>,sd,<span class="dt">na.rm=</span>T))</a>
+<a class="sourceLine" id="cb12-12" title="12">RES<span class="op">$</span>CIlow&lt;-RES<span class="op">$</span>Estimate<span class="fl">-1.96</span><span class="op">*</span>RES<span class="op">$</span>SE</a>
+<a class="sourceLine" id="cb12-13" title="13">RES<span class="op">$</span>CIupp&lt;-RES<span class="op">$</span>Estimate<span class="fl">+1.96</span><span class="op">*</span>RES<span class="op">$</span>SE</a>
+<a class="sourceLine" id="cb12-14" title="14">RES<span class="op">$</span>pvalue&lt;-<span class="dv">2</span><span class="op">*</span><span class="kw">pnorm</span>(<span class="kw">abs</span>(RES<span class="op">$</span>Estimate<span class="op">/</span>RES<span class="op">$</span>SE),<span class="dt">lower.tail =</span> F)</a>
+<a class="sourceLine" id="cb12-15" title="15">RES<span class="op">$</span>PropTCE&lt;-<span class="kw">round</span>(<span class="dv">100</span><span class="op">*</span>(RES<span class="op">$</span>Estimate<span class="op">/</span>RES<span class="op">$</span>Estimate[<span class="dv">1</span>]),<span class="dv">0</span>) <span class="co">#Express effects as a proportion of the TCE</span></a>
+<a class="sourceLine" id="cb12-16" title="16">RES&lt;-<span class="kw">round</span>(RES[,<span class="op">-</span><span class="dv">2</span>],<span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb12-17" title="17">RES&lt;-<span class="kw">cbind</span>(<span class="dt">Estimand=</span><span class="kw">c</span>(<span class="st">&quot;TCE&quot;</span>,<span class="st">&quot;IDE&quot;</span>,<span class="st">&quot;IIE_seqfull&quot;</span>,<span class="st">&quot;IIE_seq1&quot;</span>,<span class="st">&quot;IIE_seq2&quot;</span>,<span class="st">&quot;IIE_seq3&quot;</span>,<span class="st">&quot;IIE_seq4&quot;</span>,<span class="st">&quot;IIE_seqint&quot;</span>),RES)</a>
+<a class="sourceLine" id="cb12-18" title="18"></a>
+<a class="sourceLine" id="cb12-19" title="19"><span class="kw">print</span>(RES,<span class="dt">row.names =</span> F)</a></code></pre></div>
+<pre><code>##     Estimand Estimate CIlow CIupp pvalue PropTCE
+##          TCE     0.12  0.06  0.18   0.00     100
+##          IDE     0.07  0.01  0.13   0.02      56
+##  IIE_seqfull     0.06  0.02  0.09   0.00      45
+##     IIE_seq1     0.01 -0.01  0.02   0.31       5
+##     IIE_seq2     0.01  0.00  0.02   0.09       9
+##     IIE_seq3     0.04  0.01  0.06   0.00      31
+##     IIE_seq4     0.00 -0.02  0.02   0.98       0
+##   IIE_seqint     0.00 -0.01  0.00   0.30      -2</code></pre>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" title="1"><span class="co"># Can check bootstrap distribution is approx normal using (not run here)</span></a>
+<a class="sourceLine" id="cb14-2" title="2"><span class="co"># par(mfrow=c(3,3))</span></a>
+<a class="sourceLine" id="cb14-3" title="3"><span class="co"># for(i in 1:7) hist(bstrap$t[,i])</span></a></code></pre></div>
 </div>
 </div>
-<div id="cite-this-as-follows" class="section level2">
-<h2>Cite this as follows:</h2>
+<div id="cite-this-as" class="section level2">
+<h2>Cite this as:</h2>
 <p>Moreno-Betancur M, Moran P, Becker D, Patton GC, Carlin JB. “Mediation effects that emulate a target randomised trial: Simulation-based evaluation of ill-defined interventions on multiple mediators”. <a href="https://arxiv.org/abs/1907.06734">https://arxiv.org/abs/1907.06734</a></p>
 </div>
 

@@ -1,7 +1,7 @@
 ---
 title: "`medRCT`: Estimating mediation effects that emulate a target randomized controlled trial (RCT)"
 author: "Margarita Moreno-Betancur"
-date: December 3, 2020
+date: March 20, 2021
 output: 
   rmarkdown::html_vignette:
     keep_md: true
@@ -13,7 +13,7 @@ vignette: >
   
 This vignette provides a worked example on simulated data showing how to use the R function `medRCT_4med` downloadable [here](https://raw.githack.com/moreno-betancur/medRCT/master/medRCT_4med.R) and stored [here](https://github.com/moreno-betancur/medRCT), which accompanies the paper: 
 
->Moreno-Betancur M, Moran P, Becker D, Patton GC, Carlin JB. "Mediation effects that emulate a target randomised trial: Simulation-based evaluation of ill-defined interventions on multiple mediators". [https://arxiv.org/abs/1907.06734](https://arxiv.org/abs/1907.06734)
+>Moreno-Betancur M, Moran P, Becker D, Patton GC, Carlin JB. "Mediation effects that emulate a target randomised trial: Simulation-based evaluation of ill-defined interventions on multiple mediators". Statistical Methods in Medical Research 2021 (Epub ahead of print March 20, 2021). [doi:10.1177/0962280221998409](https://doi.org/10.1177/0962280221998409) (open access)
 
 ```{r global_options, include=FALSE}
 knitr::opts_chunk$set(fig.width=7, fig.height=5, fig.path='Figs/',
@@ -160,6 +160,5 @@ print(RES,row.names = F)
 
 ## Cite this as:
 
-Moreno-Betancur M, Moran P, Becker D, Patton GC, Carlin JB. "Mediation effects that emulate a target randomised trial: Simulation-based evaluation of ill-defined interventions on multiple mediators". [https://arxiv.org/abs/1907.06734](https://arxiv.org/abs/1907.06734)
-
+Moreno-Betancur M, Moran P, Becker D, Patton GC, Carlin JB. "Mediation effects that emulate a target randomised trial: Simulation-based evaluation of ill-defined interventions on multiple mediators". Statistical Methods in Medical Research 2021 (Epub ahead of print March 20, 2021). [doi:10.1177/0962280221998409](https://doi.org/10.1177/0962280221998409) (open access)
 
